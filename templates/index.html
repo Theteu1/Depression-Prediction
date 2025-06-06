@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Depression Prediction</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Depression Prediction in Students</h1>
+
+    <form id="formulario">
+
+      <label>Suicidal Thoughts:</label>
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="thoughts" value="1" required> Yes</label>
+        <label class="radio-option"><input type="radio" name="thoughts" value="0"> No</label>
+      </div>
+
+      <label>Financial Stress (1 to 5):</label>
+      <input type="number" name="financial" min="1" max="5" required>
+
+      <label>Academic Pressure (1 to 5):</label>
+      <input type="number" name="academic" min="1" max="5" required>
+
+      <label>Sleep Duration:</label>
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="sleep" value="1" required> Less than 4h</label>
+        <label class="radio-option"><input type="radio" name="sleep" value="2"> 4 to 6h</label>
+        <label class="radio-option"><input type="radio" name="sleep" value="3"> 6 to 8h</label>
+        <label class="radio-option"><input type="radio" name="sleep" value="4"> More than 8h</label>
+      </div>
+
+      <label>Family History of Mental Illness:</label>
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="family" value="1" required> Yes</label>
+        <label class="radio-option"><input type="radio" name="family" value="0"> No</label>
+      </div>
+
+      <label>CGPA (Grade Point Average):</label>
+      <input type="number" name="cgpa" min="0" max="10" step="0.01" required>
+
+      <label>Study Satisfaction (1 to 5):</label>
+      <input type="number" name="satisfaction" min="1" max="5" required>
+
+      <label>Work/Study Hours:</label>
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="hours" value="1" required> 0-2h</label>
+        <label class="radio-option"><input type="radio" name="hours" value="2"> 2-4h</label>
+        <label class="radio-option"><input type="radio" name="hours" value="3"> 4-6h</label>
+        <label class="radio-option"><input type="radio" name="hours" value="4"> 6h or more</label>
+      </div>
+
+      <label>Dietary Habits:</label>
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="diet" value="Saudável" required> Healthy</label>
+        <label class="radio-option"><input type="radio" name="diet" value="Moderado"> Moderate</label>
+        <label class="radio-option"><input type="radio" name="diet" value="Ruim"> Poor</label>
+        <label class="radio-option"><input type="radio" name="diet" value="Não Saudável"> Unhealthy</label>
+      </div>
+
+      <label>Age:</label>
+      <input type="number" name="age" min="10" max="100" required>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("formulario");
+    const resultadoDiv = document.getElementById("resultado");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const dados = {
+        thoughts: form.thoughts.value,
+        financial: form.financial.value,
+        academic: form.academic.value,
+        sleep: form.sleep.value,
+        family: form.family.value,
+        cgpa: form.cgpa.value,
+        satisfaction: form.satisfaction.value,
+        hours: form.hours.value,
+        diet: form.diet.value,
+        age: form.age.value
+      };
+
+      fetch("/prever", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.erro) {
+          resultadoDiv.innerHTML = `<p class="erro">Error: ${data.erro}</p>`;
+        } else {
+          resultadoDiv.innerHTML = `
+            <h2>Result:</h2>
+            <p class="sucesso">${data.resultado}</p>
+            <p>Probability: ${data.probabilidade}%</p>
+          `;
+        }
+      })
+      .catch(error => {
+        resultadoDiv.innerHTML = `<p class="erro">Error sending data: ${error}</p>`;
+      });
+    });
+  </script>
+</body>
+</html>
